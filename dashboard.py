@@ -179,5 +179,30 @@ def remove_member():
     save_members()
     return jsonify({"success": True})
 
+@bot.event
+async def on_member_remove(member):
+    from datetime import datetime
+    LEAVE_CHANNEL_ID = int(os.environ.get("LEAVE_CHANNEL_ID", "1496300944550395925"))
+    
+    if str(member.id) not in watched_members:
+        return
+    
+    channel = bot.get_channel(LEAVE_CHANNEL_ID)
+    if not channel:
+        channel = await bot.fetch_channel(LEAVE_CHANNEL_ID)
+    
+    rank_name = "بدون رتبة"
+    for i, rank_id in enumerate(RANKS):
+        if any(r.id == rank_id for r in member.roles):
+            rank_name = RANK_NAMES[i]
+    
+    await channel.send(
+        f"🚨 **عضو غادر السيرفر**\n"
+        f"👤 {member.name}\n"
+        f"🆔 {member.id}\n"
+        f"⭐ الرتبة: {rank_name}\n"
+        f"📅 {datetime.now().strftime('%Y-%m-%d %H:%M')}"
+    )
+
 if __name__ == "__main__":
     app.run(host="0.0.0.0", port=int(os.environ.get("PORT", 5000)))
