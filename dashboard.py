@@ -25,7 +25,6 @@ RANK_NAMES = [
     "رائد", "مقدم", "عقيد", "عميد", "لواء"
 ]
 
-# قايمة الأعضاء المتابعين
 watched_members = {}
 try:
     with open("members.json", "r") as f:
@@ -37,7 +36,6 @@ def save_members():
     with open("members.json", "w") as f:
         json.dump(watched_members, f)
 
-# Discord client للداشبورد
 intents = discord.Intents.all()
 bot = discord.Client(intents=intents)
 loop = asyncio.new_event_loop()
@@ -50,7 +48,11 @@ threading.Thread(target=run_bot, daemon=True).start()
 
 def run_async(coro):
     future = asyncio.run_coroutine_threadsafe(coro, loop)
-    return future.result(timeout=10)
+    try:
+        return future.result(timeout=30)
+    except Exception as e:
+        print(f"Error: {e}")
+        raise
 
 # --- Routes ---
 @app.route("/", methods=["GET", "POST"])
@@ -62,13 +64,16 @@ def login():
         return render_template("login.html", error="كلمة السر غلط!")
     return render_template("login.html")
 
+@app.route("/logout")
+def logout():
+    session.clear()
+    return redirect("/")
+
 @app.route("/dashboard")
 def dashboard():
     if not session.get("logged_in"):
         return redirect("/")
-    return render_template("dashboard.html",
-                           ranks=RANK_NAMES,
-                           members=watched_members)
+    return render_template("dashboard.html", ranks=RANK_NAMES, members=watched_members)
 
 @app.route("/send_message", methods=["POST"])
 def send_message():
@@ -78,6 +83,7 @@ def send_message():
     channel_id = int(data.get("channel_id"))
     message = data.get("message")
     async def _send():
+        await bot.wait_until_ready()
         channel = bot.get_channel(channel_id)
         if not channel:
             channel = await bot.fetch_channel(channel_id)
@@ -95,7 +101,8 @@ def promote():
     data = request.json
     member_id = int(data.get("member_id"))
     async def _promote():
-        guild = bot.get_guild(GUILD_ID)
+        await bot.wait_until_ready()
+        guild = await bot.fetch_guild(GUILD_ID)
         member = await guild.fetch_member(member_id)
         current_rank_index = -1
         for i, rank_id in enumerate(RANKS):
@@ -128,10 +135,11 @@ def give_role():
     data = request.json
     member_ids = data.get("member_ids", [])
     rank_index = int(data.get("rank_index"))
-    results = []
     async def _give():
-        guild = bot.get_guild(GUILD_ID)
+        await bot.wait_until_ready()
+        guild = await bot.fetch_guild(GUILD_ID)
         new_role = guild.get_role(RANKS[rank_index])
+        results = []
         for mid in member_ids:
             try:
                 member = await guild.fetch_member(int(mid))
