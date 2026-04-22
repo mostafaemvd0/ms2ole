@@ -1,0 +1,80 @@
+<!DOCTYPE html>
+<html dir="rtl">
+<head>
+    <meta charset="UTF-8">
+    <title>داشبورد الأمن والحماية</title>
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body {
+            background: #1a1a2e;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            min-height: 100vh;
+            font-family: Arial, sans-serif;
+        }
+        .login-box {
+            background: #16213e;
+            padding: 40px;
+            border-radius: 12px;
+            border: 1px solid #0f3460;
+            width: 380px;
+            text-align: center;
+        }
+        .login-box h1 {
+            color: #e94560;
+            margin-bottom: 10px;
+            font-size: 24px;
+        }
+        .login-box p {
+            color: #888;
+            margin-bottom: 30px;
+            font-size: 14px;
+        }
+        input {
+            width: 100%;
+            padding: 12px;
+            margin-bottom: 16px;
+            background: #0f3460;
+            border: 1px solid #1a4a8a;
+            border-radius: 8px;
+            color: white;
+            font-size: 16px;
+            text-align: center;
+        }
+        button {
+            width: 100%;
+            padding: 12px;
+            background: #e94560;
+            border: none;
+            border-radius: 8px;
+            color: white;
+            font-size: 16px;
+            cursor: pointer;
+            font-weight: bold;
+        }
+        button:hover { background: #c73652; }
+        .error {
+            background: #3d1a1a;
+            color: #e94560;
+            padding: 10px;
+            border-radius: 8px;
+            margin-bottom: 16px;
+            font-size: 14px;
+        }
+    </style>
+</head>
+<body>
+    <div class="login-box">
+        <h1>🛡️ الأمن والحماية</h1>
+        <p>داشبورد إدارة السيرفر</p>
+        {% if error %}
+        <div class="error">{{ error }}</div>
+        {% endif %}
+        <form method="POST">
+            <input type="password" name="password" placeholder="كلمة السر" autofocus>
+            <button type="submit">دخول</button>
+        </form>
+    </div>
+</body>
+</html>
